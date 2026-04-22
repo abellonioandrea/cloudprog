@@ -1,0 +1,45 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: cirros
+  name: cirros-golden
+  namespace: cldprog-5-block-vms-tests
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: cirros
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: datavolumedisk1
+        machine:
+          type: ""
+        resources:
+          requests:
+            memory: 2Gi
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: datavolumedisk1        # 1. CORRETTO: Aggiunto il nome per collegarlo al disco
+        dataVolume:
+          name: cirros-clone         # 2. CORRETTO: Nome del template
+  dataVolumeTemplates:
+  - metadata:
+      name: cirros-clone             # 2. CORRETTO: Identico a quello sopra!
+    spec:
+      source:
+        pvc:
+          namespace: cldprog-5-block-vms-tests
+          name: cirros
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 15Gi
+        volumeMode: Block
