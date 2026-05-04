@@ -1,16 +1,16 @@
 apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
-  name: cirros
+  name: debian-golden-andrea-fs
   namespace: cldprog-5-block-vms-tests
 spec:
   source:
     http:
-      url: "https://download.cirros-cloud.net/0.6.3/cirros-0.6.3-x86_64-disk.img"
+      url: "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
   pvc:
     accessModes:
       - ReadWriteOnce
-    volumeMode: Block
+    volumeMode: Filesystem
     resources:
       requests:
         storage: 5Gi

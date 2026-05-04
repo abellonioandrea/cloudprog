@@ -2,15 +2,15 @@ apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
   labels:
-    kubevirt.io/vm: cirros
-  name: cirros-golden
+    kubevirt.io/vm: debian
+  name: debian-golden-andrea-block
   namespace: cldprog-5-block-vms-tests
 spec:
   runStrategy: Always
   template:
     metadata:
       labels:
-        kubevirt.io/vm: cirros
+        kubevirt.io/vm: debian
     spec:
       domain:
         devices:
@@ -27,19 +27,19 @@ spec:
       volumes:
       - name: datavolumedisk1        # 1. CORRETTO: Aggiunto il nome per collegarlo al disco
         dataVolume:
-          name: cirros-clone         # 2. CORRETTO: Nome del template
+          name: discovm1clone         # 2. CORRETTO: Nome del template
   dataVolumeTemplates:
   - metadata:
-      name: cirros-clone             # 2. CORRETTO: Identico a quello sopra!
+      name: discovm1clone             # 2. CORRETTO: Identico a quello sopra!
     spec:
       source:
         pvc:
           namespace: cldprog-5-block-vms-tests
-          name: cirros
+          name: debian-golden-andrea
       pvc:
         accessModes:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 15Gi
+            storage: 10Gi
         volumeMode: Block

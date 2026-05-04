@@ -1,0 +1,21 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: debian-nginx-raw-block
+  namespace: cldprog-5-block-vms-tests
+spec:
+  source:
+    http:
+      # Se nginx-file-service e' in un altro namespace, sostituisci il namespace nel FQDN
+      url: "http://nginx-file-service.cldprog-5-block-vms-tests.svc.cluster.local/debian-13-generic-amd64.raw"
+  contentType: kubevirt
+  preallocation: true
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    volumeMode: Block
+    resources:
+      requests:
+        storage: 10Gi
+    # Decommenta se il cluster richiede una storage class esplicita
+    # storageClassName: rook-ceph-block

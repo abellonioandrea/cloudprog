@@ -1,0 +1,45 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: debian
+  name: debian-golden-andrea-standard
+  namespace: cldprog-5-block-vms-tests
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: debian
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: datavolumedisk1
+        machine:
+          type: ""
+        resources:
+          requests:
+            memory: 2Gi
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: datavolumedisk1
+        dataVolume:
+          name: discovm1clone
+  dataVolumeTemplates:
+  - metadata:
+      name: discovm1clone
+    spec:
+      source:
+        http:
+          url: "http://nginx-file-service/debian-13-generic-amd64.raw"
+      pvc:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Block
+        # storageClassName: rook-ceph-block  <-- Decommenta se ti dà errore sulla storage class

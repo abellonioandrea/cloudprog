@@ -1,0 +1,45 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt.io/vm: debian
+  name: debian-golden-andrea
+  namespace: cldprog-5-block-vms-tests
+spec:
+  runStrategy: Always
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: debian
+    spec:
+      domain:
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: datavolumedisk1
+        machine:
+          type: ""
+        resources:
+          requests:
+            memory: 2Gi
+      terminationGracePeriodSeconds: 0
+      volumes:
+      - name: datavolumedisk1        # 1. CORRETTO: Aggiunto il nome per collegarlo al disco
+        dataVolume:
+          name: discovm1clone         # 2. CORRETTO: Nome del template
+  dataVolumeTemplates:
+  - metadata:
+      name: discovm1clone             # 2. CORRETTO: Identico a quello sopra!
+    spec:
+      source:
+        pvc:
+          namespace: cldprog-5-block-vms-tests
+          name: debian-golden-andrea-fs
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem

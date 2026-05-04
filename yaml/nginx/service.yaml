@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-file-service
+spec:
+  selector:
+    app: file-server # Deve corrispondere alla label del Deployment
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

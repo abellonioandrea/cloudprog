@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: debian-raw-block-pvc
+  namespace: cldprog-5-block-vms-tests
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block
+  resources:
+    requests:
+      storage: 10Gi
+  # Decommenta se il cluster richiede una storage class specifica
+  # storageClassName: rook-ceph-block
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: raw-manual-importer
+  namespace: cldprog-5-block-vms-tests
+spec:
+  restartPolicy: Never
+  containers:
+    - name: importer
+      image: debian:bookworm-slim
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        privileged: true
+        allowPrivilegeEscalation: true
+      command: ["/bin/sh", "-ec"]
+      args:
+        - |
+          set -eu
+
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends curl qemu-utils ca-certificates
+          rm -rf /var/lib/apt/lists/*
+
+          now_ms() {
+            date +%s%3N
+          }
+
+          print_step_time() {
+            STEP_NAME="$1"
+            START_MS="$2"
+            END_MS="$3"
+            DURATION_MS=$((END_MS - START_MS))
+            DURATION_S=$((DURATION_MS / 1000))
+            REMAINDER_MS=$((DURATION_MS % 1000))
+            echo "[TIMING] ${STEP_NAME}: ${DURATION_S}.${REMAINDER_MS}s (${DURATION_MS} ms)"
+          }
+
+          TOTAL_START_MS="$(now_ms)"
+
+          URL="http://nginx-file-service/debian-13-generic-amd64.qcow2"
+          TMP_IMAGE="/tmp/debian-13-generic-amd64.qcow2"
+          echo "Download qcow2 da ${URL} in ${TMP_IMAGE} e conversione su /dev/blockdisk con qemu-img"
+
+          DOWNLOAD_START_MS="$(now_ms)"
+          curl -fL "$URL" -o "$TMP_IMAGE"
+          DOWNLOAD_END_MS="$(now_ms)"
+          print_step_time "download" "$DOWNLOAD_START_MS" "$DOWNLOAD_END_MS"
+
+          CONVERT_START_MS="$(now_ms)"
+          qemu-img convert -p -f qcow2 -O raw -t none -T none "$TMP_IMAGE" /dev/blockdisk
+          CONVERT_END_MS="$(now_ms)"
+          print_step_time "qemu-img convert" "$CONVERT_START_MS" "$CONVERT_END_MS"
+
+          FLUSH_START_MS="$(now_ms)"
+          sync
+          FLUSH_END_MS="$(now_ms)"
+          print_step_time "sync" "$FLUSH_START_MS" "$FLUSH_END_MS"
+
+          TOTAL_END_MS="$(now_ms)"
+          print_step_time "totale import" "$TOTAL_START_MS" "$TOTAL_END_MS"
+
+          echo "Import completato con successo"
+      volumeDevices:
+        - name: target-disk
+          devicePath: /dev/blockdisk
+  volumes:
+    - name: target-disk
+      persistentVolumeClaim:
+        claimName: debian-raw-block-pvc
