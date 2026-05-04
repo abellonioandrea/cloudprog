@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-image-importer
+spec:
+  containers:
+  - name: importer
+    image: alpine:latest
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        apk add --no-cache curl qemu-img qemu-block-curl
+                
+        START_TIME=$(date +%s)
+
+        #Using qemu img 
+        #Cache
+        #qemu-img convert -p -f raw -O raw http://nginx-file-service/debian-13-generic-amd64.raw /dev/xvda
+
+        #No cache
+        qemu-img convert -p -f raw -O raw -t none -T none http://nginx-file-service/debian-13-generic-amd64.raw?rand=$RANDOM /dev/xvda
+
+        #Empties disk buffer
+        sync
+
+        END_TIME=$(date +%s)
+
+        DURATION=$((END_TIME - START_TIME))
+        echo "Download from nginx and copy took $DURATION seconds."
+
+        sleep infinity
+    volumeDevices:
+    - devicePath: /dev/xvda
+      name: block-disk
+
+  volumes:
+  - name: block-disk
+    persistentVolumeClaim:
+      claimName: vm-disk-pvc

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-dd-importer
+spec:
+  containers:
+  - name: importer
+    image: alpine:latest
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        # Install curl (dd is already included in the base alpine image)
+        apk add --no-cache curl
+                
+        echo "Starting data transfer with dd..."
+        START_TIME=$(date +%s)
+
+        # curl flags:
+        # -L: Follow redirects
+        # -s: Silent mode (hides progress bar to keep logs clean)
+        
+        # dd flags:
+        # of=/dev/xvda: Output file (the raw block device)
+        # bs=1M: Set block size to 1MB for efficient I/O throughput
+        # oflag=direct: Bypass kernel caching (Direct I/O) to measure real disk speed
+        
+        curl -L -s "http://nginx-file-service/debian-13-generic-amd64.raw?rand=$RANDOM" | \
+        dd of=/dev/xvda bs=1M oflag=direct
+
+        # dd finishes when the curl pipe closes.
+        # sync ensures all data is physically flushed to the remote storage.
+        sync
+
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+
+        echo "----------------------------------------------------"
+        echo "Transfer completed via DD in $DURATION seconds."
+        echo "----------------------------------------------------"
+
+        # Keep the pod alive for manual inspection
+        sleep infinity
+    volumeDevices:
+    - devicePath: /dev/xvda
+      name: block-disk
+
+  volumes:
+  - name: block-disk
+    persistentVolumeClaim:
+      claimName: vm-disk-pvc

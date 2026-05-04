@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-image-importer
+spec:
+  containers:
+  - name: importer
+    image: alpine:latest
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        apk add --no-cache curl qemu-img qemu-block-curl
+                
+        START_TIME=$(date +%s)
+
+        #Using qemu img I need to download everything first since qcow2 requires random reading on file 
+
+        
+        
+        #Cache
+        #curl -L http://nginx-file-service/debian-13-generic-amd64.qcow2 -o /workspace/image.qcow2
+
+        #No cache
+        curl -L http://nginx-file-service/debian-13-generic-amd64.qcow2?rand=$RANDOM -o /workspace/image.qcow2
+
+
+
+        END_TIME1=$(date +%s)
+
+        qemu-img convert -p -f qcow2 -O raw -t none -T none /workspace/image.qcow2 /dev/xvda  
+
+        #Empties disk buffer
+        sync
+
+        END_TIME2=$(date +%s)
+
+        rm /workspace/image.qcow2
+
+        DURATION_TOT=$((END_TIME2 - START_TIME))
+        DURATION_DL=$((END_TIME1 - START_TIME))
+        DURATION_CONVERT=$((END_TIME2 - END_TIME1))
+        echo "Download from nginx and copy took $DURATION seconds. CURL: $DURATION_DL, QEMU-IMG CONVERT: $DURATION_CONVERT"
+
+        sleep infinity
+    volumeDevices:
+    - devicePath: /dev/xvda
+      name: block-disk
+
+    #Temp volume for file download
+    volumeMounts:
+    - mountPath: /workspace
+      name: temp-storage
+
+  volumes:
+  - name: block-disk
+    persistentVolumeClaim:
+      claimName: vm-disk-pvc
+
+  - name: temp-storage
+    emptyDir: {}
