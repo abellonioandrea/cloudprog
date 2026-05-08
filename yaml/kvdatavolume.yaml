@@ -2,11 +2,12 @@ apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
   name: debian-nginx-qcow2
-  namespace: cldprog-5-block-vms-tests
+  namespace: tenant-s343884
 spec:
   source:
-    http:
-      url: "http://nginx-file-service.cldprog-5-block-vms-tests.svc.cluster.local/debian-13-generic-amd64.qcow2"
+    pvc:
+      name: debian-nginx-raw-block
+      namespace: cldprog-5-block-vms-tests
   contentType: kubevirt
   preallocation: true
   pvc:
@@ -15,6 +16,6 @@ spec:
     volumeMode: Block
     resources:
       requests:
-        storage: 10Gi
+        storage: 20Gi
     # Decommenta se il cluster richiede una storage class esplicita
     # storageClassName: rook-ceph-block

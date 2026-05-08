@@ -4,7 +4,6 @@ metadata:
   labels:
     kubevirt.io/vm: debian
   name: debian-golden-andrea-standard
-  namespace: cldprog-5-block-vms-tests
 spec:
   runStrategy: Always
   template:
@@ -33,13 +32,14 @@ spec:
       name: discovm1clone
     spec:
       source:
-        http:
-          url: "http://nginx-file-service/debian-13-generic-amd64.raw"
+        pvc:
+          namespace: cldprog-5-block-vms-tests
+          name: clonepvc
       pvc:
         accessModes:
           - ReadWriteMany
         resources:
           requests:
-            storage: 10Gi
+            storage: 25Gi
         volumeMode: Block
         # storageClassName: rook-ceph-block  <-- Decommenta se ti dà errore sulla storage class

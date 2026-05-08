@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: clonepvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block
+  resources:
+    requests:
+      storage: 20Gi
+  dataSourceRef:
+    apiGroup: ""
+    kind: PersistentVolumeClaim
+    name: debian-nginx-raw-block
+    namespace: cldprog-5-block-vms-tests
