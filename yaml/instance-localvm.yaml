@@ -1,0 +1,15 @@
+apiVersion: crownlabs.polito.it/v1alpha2
+kind: Instance
+metadata:
+  name: test-localvm-01
+  namespace: tenant-s349496
+spec:
+  # Usa esattamente questa stringa come chiave
+  template.crownlabs.polito.it/TemplateRef:
+    name: localvm-static-template
+    namespace: tenant-s349496
+  # Aggiungi anche il tenant, che è richiesto
+  tenant.crownlabs.polito.it/TenantRef:
+    name: s349496
+    namespace: tenant-s349496
+  running: true

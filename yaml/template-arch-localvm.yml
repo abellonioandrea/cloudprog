@@ -1,0 +1,19 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: archlinux-cloud-raw-block
+  namespace: cldprog-5-block-vms-tests
+spec:
+  contentType: kubevirt
+  preallocation: true
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+    storageClassName: rook-ceph-block
+    volumeMode: Block
+  source:
+    http:
+      url: https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2

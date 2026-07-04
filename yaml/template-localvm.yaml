@@ -1,0 +1,21 @@
+apiVersion: crownlabs.polito.it/v1alpha2
+kind: Template
+metadata:
+  name: localvm-static-template
+  # Inseriscilo in un namespace workspace a cui il tuo utente ha accesso
+  namespace: tenant-s349496
+spec:
+  prettyName: "Test LocalVM Smart Clone"
+  description: "Template di test per verificare il VolumeMode Block hardcodato."
+  environmentList:
+    - name: block-env
+      environmentType: LocalVM   # <--- LA CHIAVE DI TUTTO
+      persistent: true
+      guiEnabled: false
+      image: "cldprog-5-block-vms-tests/fedora-cloud-raw-block"       # Ignorato dal tuo codice statico attuale
+      resources:
+        cpu: 2
+        reservedCPUPercentage: 25
+        memory: 2Gi
+        # IMPORTANTE: Il disco deve essere uguale o più grande del PVC master
+        disk: 10Gi

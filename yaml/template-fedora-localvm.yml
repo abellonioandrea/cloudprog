@@ -1,0 +1,19 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: fedora-cloud-raw-block
+  namespace: cldprog-5-block-vms-tests
+spec:
+  contentType: kubevirt
+  preallocation: true
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+    storageClassName: rook-ceph-block
+    volumeMode: Block
+  source:
+    http:
+      url: https://download.fedoraproject.org/pub/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2

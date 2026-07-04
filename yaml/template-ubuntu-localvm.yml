@@ -1,0 +1,19 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: ubuntu-cloud-raw-block
+  namespace: cldprog-5-block-vms-tests
+spec:
+  contentType: kubevirt
+  preallocation: true
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+    storageClassName: rook-ceph-block
+    volumeMode: Block
+  source:
+    http:
+      url: https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img
