@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mirrored-pvc
+  namespace: crownlabs-staging-1094
+spec:
+  volumeMode: Block
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1
+  storageClassName: pvc-mirror
+  dataSourceRef:
+    kind: PersistentVolumeClaim
+    name: debian-nginx-raw-block
+    namespace: cldprog-5-block-vms-tests

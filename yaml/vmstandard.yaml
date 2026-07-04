@@ -26,20 +26,4 @@ spec:
       volumes:
       - name: datavolumedisk1
         dataVolume:
-          name: discovm1clone
-  dataVolumeTemplates:
-  - metadata:
-      name: discovm1clone
-    spec:
-      source:
-        pvc:
-          namespace: cldprog-5-block-vms-tests
-          name: clonepvc
-      pvc:
-        accessModes:
-          - ReadWriteMany
-        resources:
-          requests:
-            storage: 25Gi
-        volumeMode: Block
-        # storageClassName: rook-ceph-block  <-- Decommenta se ti dà errore sulla storage class
+          name: debian-nginx-qcow2

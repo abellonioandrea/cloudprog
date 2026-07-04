@@ -2,7 +2,7 @@ apiVersion: cdi.kubevirt.io/v1beta1
 kind: DataVolume
 metadata:
   name: debian-nginx-raw-block
-  namespace: cldprog-5-block-vms-tests
+  namespace: crownlabs-staging-1094
 spec:
   source:
     http:
